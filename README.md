@@ -1,114 +1,150 @@
-# 📝 To-Do List Web App
+# 📝 To-Do List Web Application
 
-A simple and responsive **To-Do List** application built using **HTML, CSS, and JavaScript**. It allows users to add, complete, delete, and save tasks using the browser's **Local Storage**, ensuring tasks remain available even after refreshing the page.
+A modern and responsive **To-Do List Web Application** built with **HTML, CSS, JavaScript, Node.js, Express.js, and Supabase**. The application allows users to manage their daily tasks efficiently with a clean and user-friendly interface.
 
 ---
 
-## 🚀 Features
+## ✨ Features
 
-* ➕ Add new tasks
-* ✅ Mark tasks as completed
-* ❌ Delete tasks
-* 💾 Save tasks using Local Storage
-* 🔄 Automatically load saved tasks on page refresh
-* 📱 Responsive and user-friendly interface
+- ➕ Add new tasks
+- ✏️ Edit existing tasks
+- ✅ Mark tasks as completed
+- 🗑️ Delete tasks
+- 💾 Store tasks in Supabase Database
+- 📱 Responsive Design
+- ⚡ Fast and Simple User Interface
 
 ---
 
 ## 🛠️ Tech Stack
 
-* HTML5
-* CSS3
-* JavaScript (ES6)
-* Local Storage API
+### Frontend
+- HTML5
+- CSS3
+- JavaScript (ES6)
+
+### Backend
+- Node.js
+- Express.js
+
+### Database
+- Supabase
 
 ---
 
 ## 📂 Project Structure
 
-```text
-To-Do-List/
-│── index.html
-│── style.css
-│── script.js
-│── images/
+```
+To-do-list/
+│
+├── node_modules/
+├── images/
+├── public/
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+│
+├── server.js
+├── package.json
+├── package-lock.json
+├── .gitignore
+├── .env
 └── README.md
 ```
 
 ---
 
-## ⚙️ How It Works
+## 🚀 Installation
 
-1. Enter a task in the input box.
-2. Click the **Add** button.
-3. The task is displayed in the list.
-4. Click on a task to mark it as completed.
-5. Click the **×** icon to delete a task.
-6. All tasks are automatically saved in the browser's Local Storage.
-7. Refreshing the page restores the saved tasks.
-
----
-
-<img width="874" height="813" alt="{E6AD0ED9-42F7-4BD8-B89D-D24592E91104}" src="https://github.com/user-attachments/assets/ce58b646-7a7b-4c3e-b6e8-b4e02aab560f" />
-
-
----
-
-## 📖 Key JavaScript Concepts Used
-
-* DOM Manipulation
-* Event Listeners
-* Event Delegation
-* Dynamic Element Creation
-* Local Storage
-* Functions
-* Conditional Statements
-* Class Toggle
-* Unicode Characters
-
----
-
-## 💻 Installation
-
-Clone the repository:
+### Clone the repository
 
 ```bash
-git clone https://github.com/TechKirtisingh/To-Do-List.git
+git clone https://github.com/TechKirtisingh/To-do-list.git
 ```
 
-Go to the project folder:
+Move into the project folder
 
 ```bash
-cd To-Do-List
+cd To-do-list
 ```
 
-Open `index.html` in your browser.
+Install dependencies
+
+```bash
+npm install
+```
+
+Create a `.env` file
+
+```env
+SUPABASE_URL=YOUR_SUPABASE_URL
+SUPABASE_KEY=YOUR_SUPABASE_KEY
+PORT=5000
+```
+
+Start the server
+
+```bash
+npm start
+```
+
+or
+
+```bash
+node server.js
+```
+
+---
+
+## 📸 Preview
+
+> Add screenshots of your project here.
+
+Example:
+
+```
+images/home.png
+images/add-task.png
+```
 
 ---
 
 ## 🌟 Future Improvements
 
-* Edit existing tasks
-* Add task priorities
-* Due date and reminders
-* Dark/Light mode
-* Task categories
-* Search tasks
-* Filter completed and pending tasks
-* Drag and drop task ordering
+- User Authentication
+- Due Dates
+- Task Categories
+- Dark Mode
+- Search Tasks
+- Filter Completed/Pending Tasks
+- Drag and Drop Task Ordering
 
 ---
 
-## 🎯 Learning Outcomes
+## 🤝 Contributing
 
-This project helped in understanding:
+Contributions are welcome!
 
-* JavaScript DOM Manipulation
-* Working with Events
-* Local Storage API
-* Dynamic HTML Elements
-* Interactive Web Development
-* Responsive UI Design
+1. Fork the repository
+2. Create a new branch
+
+```bash
+git checkout -b feature-name
+```
+
+3. Commit your changes
+
+```bash
+git commit -m "Add new feature"
+```
+
+4. Push to GitHub
+
+```bash
+git push origin feature-name
+```
+
+5. Create a Pull Request
 
 ---
 
@@ -116,11 +152,13 @@ This project helped in understanding:
 
 **Kirti Singh**
 
-* GitHub: https://github.com/TechKirtisingh
-* LinkedIn: https://linkedin.com/in/kirtisingh
+- GitHub: https://github.com/TechKirtisingh
+- LinkedIn: https://linkedin.com/in/kirtisingh
 
 ---
 
-## 📜 License
+## 📄 License
 
-This project is created for learning and educational purposes. Feel free to use and modify it.
+This project is licensed under the MIT License.
+
+⭐ If you like this project, don't forget to **Star** the repository.
