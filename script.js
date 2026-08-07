@@ -1,11 +1,11 @@
-// CHANGED (Where: API_BASE_URL): Fixed URL detection for local file protocol, localhost, and Netlify deployments.
-// WHY: When opening index.html directly from file manager (file:// protocol) or running locally, hostname is empty or localhost, so it connects to http://localhost:3000. When deployed on Netlify, it uses /.netlify/functions.
+// CHANGED (Where: API_BASE_URL): Added auto-detecting base URL for local development and Vercel deployment.
+// WHY: When running locally (or file:// protocol), connects to http://localhost:3000. When deployed on Vercel, connects to /api serverless endpoints.
 const isLocalEnv = window.location.protocol === "file:" ||
                    window.location.hostname === "localhost" ||
                    window.location.hostname === "127.0.0.1" ||
                    window.location.hostname === "";
 
-const API_BASE_URL = isLocalEnv ? "http://localhost:3000" : "/.netlify/functions";
+const API_BASE_URL = isLocalEnv ? "http://localhost:3000" : "/api";
 
 const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
