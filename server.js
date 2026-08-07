@@ -3,18 +3,14 @@ import cors from "cors"; // CORS different ports ke beech communication allow ka
 import dotenv from "dotenv";
 import OpenAI from "openai";
 
-dotenv.config();  // used to load .env file.
+dotenv.config();
 
-//// Create Express App
+// Create Express App
+const app = express();
 
-// Jaise frontend me
-//const button=document.getElementById(...)
-
-const app = express(); //Ye backend create karta hai.
-
-app.use(cors()); // CORS middleware ko use karna zaruri hai, warna frontend aur backend ke beech communication nahi hoga.
-
-app.use(express.json()); //
+// Enable CORS and JSON parsing middleware
+app.use(cors());
+app.use(express.json());
 
 //// Connect to Groq API (setup connection with Groq)
 
@@ -36,11 +32,18 @@ const client = new OpenAI({
 //(req,res)=> its a request(fronted ne kya bheja) and response(kya bejna hai) function hai.
 
 
+// CHANGED (Where: /ask-ai endpoint): Added validation for req.body.task parameter.
+// WHY: Prevents Groq API 400 error ('messages.1.content' property is missing) if task is undefined, null, or empty string.
 app.post("/ask-ai", async (req, res) => {
 
     try {
 
         const { task } = req.body;
+        const taskText = typeof task === 'string' ? task.trim() : (task?.title || task?.task || String(task || '').trim());
+
+        if (!taskText) {
+            return res.status(400).json({ answer: "Task content is required." });
+        }
 
         const completion = await client.chat.completions.create({
 
@@ -50,30 +53,66 @@ app.post("/ask-ai", async (req, res) => {
 
                 {
                     role: "system",
-                    content: "Break the task into easy subtasks."
+                    content: `
+You are an AI roadmap generator.
+
+Return ONLY valid JSON.
+
+Example format:
+
+{
+  "title":"Become Data Scientist",
+  "subtasks":[
+    {
+      "title":"Learn Python",
+      "subtasks":[
+        {
+          "title":"Python Basics",
+          "subtasks":[
+            {"title":"Variables"},
+            {"title":"Loops"},
+            {"title":"Functions"}
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+No markdown.
+No explanation.
+Only JSON.
+`
                 },
 
                 {
                     role: "user",
-                    content: task
+                    content: taskText
                 }
 
             ]
 
         });
 
-        res.json({  // send answer back to frontend in json format.
-            answer: completion.choices[0].message.content
-        });
+        let content = completion.choices[0].message.content.trim();
+
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            content = jsonMatch[0];
+        }
+
+        const roadmap = JSON.parse(content);
+
+        res.json(roadmap);
 
     }
 
     catch (err) { // if api key fail , or api key is wrong thenn this function work
 
-        console.error(err);
+        console.error("AI Generation Error:", err);
 
         res.status(500).json({
-            answer: "Something went wrong."
+            answer: err.message || "Failed to parse AI response."
         });
 
     }
