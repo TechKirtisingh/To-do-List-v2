@@ -3,14 +3,24 @@ import cors from "cors";
 import dotenv from "dotenv";
 import OpenAI from "openai";
 
+import path from "path";
+import { fileURLToPath } from "url";
+
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(".")); // Serves index.html, style.css, script.js, images directly
+app.use(express.static(__dirname));
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
 
 // Configure Groq API client
 const client = new OpenAI({
@@ -99,6 +109,10 @@ app.post(["/ask-chat", "/api/ask-chat"], async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running at http://localhost:${PORT}`);
+    });
+}
+
+export default app;
