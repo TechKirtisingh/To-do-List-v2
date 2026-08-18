@@ -1,115 +1,62 @@
-// CHANGED (Where: API_BASE_URL): Added auto-detecting base URL for local development and Vercel deployment.
-// WHY: When running locally (or file:// protocol), connects to http://localhost:3000. When deployed on Vercel, connects to /api serverless endpoints.
-const isLocalEnv = window.location.protocol === "file:" ||
-                   window.location.hostname === "localhost" ||
-                   window.location.hostname === "127.0.0.1" ||
-                   window.location.hostname === "";
-
-const API_BASE_URL = isLocalEnv ? "http://localhost:3000" : "/api";
-
 const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
+const aiInput = document.getElementById("ai-input");
+const aiBtn = document.getElementById("ai-btn");
+const aiResponse = document.getElementById("ai-response");
 
-async function addTask() {
+// Helper to determine the API endpoint URL for local development or Vercel
+function getApiUrl(endpoint) {
+    const isVercel = window.location.hostname.endsWith("vercel.app");
+    const isLocalServer = window.location.port === "3000";
+    if (isLocalServer) return endpoint;
+    if (isVercel) return `/api${endpoint}`;
+    
+    // For Live Server (e.g. 127.0.0.1:5500) or other local dev servers:
+    const host = window.location.hostname || "localhost";
+    return `http://${host}:3000${endpoint}`;
+}
 
+// -------------------------------------------------------------
+// 1. Task Operations
+// -------------------------------------------------------------
+
+function addTask() {
     const text = inputBox.value.trim();
-
-    if (text === "") {
-        alert("Write something!");
+    if (!text) {
+        alert("Please enter a task name!");
         return;
     }
 
-    const textLower = text.toLowerCase();
-
-    if (
-        textLower.includes("become") ||
-        textLower.includes("study") ||
-        textLower.includes("learn") ||
-        textLower.includes("roadmap") ||
-        textLower.includes("career") ||
-        textLower.includes("data science") ||
-        textLower.includes("machine learning") ||
-        textLower.includes("ai")
-    ) {
-
-        await askAI(text);
-
-    }
-    else {
-
-        addNormalTask(text);
-
-    }
-
+    createTaskElement({ title: text }, listContainer, 3);
     inputBox.value = "";
-
     saveData();
 }
 
-// CHANGED (Where: getTaskTitle helper): Safely extracts title string from task parameter.
-// WHY: Fixes 'name not shown while i add task'. If task is a string or object, ensures task title text is never undefined or empty.
-function getTaskTitle(task) {
-    if (typeof task === "string") return task;
-    if (task && typeof task === "object") {
-        return task.title || task.name || task.task || task.heading || "Untitled Task";
-    }
-    return String(task || "Untitled Task");
+// Allow adding task by pressing Enter key
+if (inputBox) {
+    inputBox.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addTask();
+    });
 }
 
-// CHANGED (Where: listContainer click listener): Passed target task li element to askAI.
-// WHY: Allows askAI to attach newly generated AI flowchart subtasks right below that specific task instead of at the end of the list.
-listContainer.addEventListener("click", function(e) {
-    if (e.target.classList.contains("delete-btn")) {
-        e.target.closest("li").remove();
-        saveData();
-    }
-    else if (e.target.classList.contains("task-ai-btn")) {
-        e.stopPropagation();
-        const li = e.target.closest("li");
-        const titleSpan = li.querySelector(".task-title");
-        const taskText = titleSpan ? titleSpan.textContent.trim() : "";
-        if (taskText) {
-            askAI(taskText, li); // Pass targetLi
-        }
-    }
-    else if (e.target.classList.contains("task-title")) {
-        e.target.closest("li").classList.toggle("checked");
-        saveData();
-    }
-    else if (e.target.tagName === "LI") {
-        e.target.classList.toggle("checked");
-        saveData();
-    }
-},false);
-
-function saveData() {
-    localStorage.setItem("data", listContainer.innerHTML);
-}
-
-function showTask() {
-    listContainer.innerHTML = localStorage.getItem("data");
-}
-showTask();
-
-// CHANGED (Where: addNormalTask function): Defined addNormalTask with getTaskTitle safety check.
-// WHY: Fixes 'name not shown while i add task'. Ensures task name is properly assigned to titleSpan textContent.
-function addNormalTask(text) {
-    const taskTitle = text ? text.trim() : "Untitled Task";
+// Create and append a task list item element
+function createTaskElement(task, parentElement, level = 0) {
+    const title = typeof task === "string" ? task : (task.title || "Untitled Task");
 
     const li = document.createElement("li");
-    li.classList.add("level-3"); // Normal level (normal font weight)
+    li.className = `level-${Math.min(level, 3)}`;
 
-    // Task Title Span
-    const titleSpan = document.createElement("span");
-    titleSpan.className = "task-title";
-    titleSpan.textContent = taskTitle;
-    li.appendChild(titleSpan);
+    // Task title
+    const span = document.createElement("span");
+    span.className = "task-title";
+    span.textContent = title;
+    li.appendChild(span);
 
-    // Ask AI Button for this task
-    const aiBtn = document.createElement("button");
-    aiBtn.className = "task-ai-btn";
-    aiBtn.textContent = "Ask AI";
-    li.appendChild(aiBtn);
+    // Ask AI Button for task breakdown
+    const aiButton = document.createElement("button");
+    aiButton.className = "task-ai-btn";
+    aiButton.textContent = "Ask AI";
+    li.appendChild(aiButton);
 
     // Delete Button
     const deleteBtn = document.createElement("span");
@@ -117,204 +64,170 @@ function addNormalTask(text) {
     deleteBtn.innerHTML = "&times;";
     li.appendChild(deleteBtn);
 
-    listContainer.appendChild(li);
-}
+    parentElement.appendChild(li);
 
-// CHANGED (Where: createTaskTree function): Updated tree node rendering with getTaskTitle helper.
-// WHY: Fixes 'name not shown while i add task'. Safely extracts title string so nodes display their text properly.
-function createTaskTree(task, parent, level = 0) {
-
-    const titleText = getTaskTitle(task);
-
-    const li = document.createElement("li");
-
-    li.classList.add("level-" + level);
-
-    const titleSpan = document.createElement("span");
-    titleSpan.className = "task-title";
-    titleSpan.textContent = titleText;
-    li.appendChild(titleSpan);
-
-    // Ask AI Button for task node
-    const aiBtn = document.createElement("button");
-    aiBtn.className = "task-ai-btn";
-    aiBtn.textContent = "Ask AI";
-    li.appendChild(aiBtn);
-
-    const deleteBtn = document.createElement("span");
-    deleteBtn.className = "delete-btn";
-    deleteBtn.innerHTML = "&times;";
-    li.appendChild(deleteBtn);
-
-    parent.appendChild(li);
-
-    if (task && task.subtasks && Array.isArray(task.subtasks) && task.subtasks.length > 0) {
-
+    // Render nested subtasks if any
+    if (task.subtasks && Array.isArray(task.subtasks) && task.subtasks.length > 0) {
         const ul = document.createElement("ul");
-
-        ul.classList.add("subtask-list");
-
+        ul.className = "subtask-list";
         li.appendChild(ul);
-
         task.subtasks.forEach(sub => {
-
-            createTaskTree(sub, ul, level + 1);
-
+            createTaskElement(sub, ul, level + 1);
         });
-
     }
-
 }
 
+// Event Delegation for List Container (Check, Delete, and Ask AI)
+listContainer.addEventListener("click", (e) => {
+    const target = e.target;
 
-//==========================
-// AI Function Starts Here
-//==========================
-
-// CHANGED (Where: askAI function): Added targetLi parameter and child subtask attachment logic.
-// WHY: Fulfills 'add that new part generated with ask button right below that task'. If triggered from a task's Ask AI button, attaches the subtask flowchart directly under that target task item.
-async function askAI(task, targetLi = null) {
-
-    const taskQuery = typeof task === "string" ? task.trim() : (task?.title || task?.name || "");
-
-    if (!taskQuery) {
-        alert("Please enter a valid task for AI!");
+    // Delete Task
+    if (target.classList.contains("delete-btn")) {
+        target.closest("li").remove();
+        saveData();
         return;
     }
 
+    // Ask AI to generate subtask roadmap
+    if (target.classList.contains("task-ai-btn")) {
+        e.stopPropagation();
+        const li = target.closest("li");
+        const titleSpan = li.querySelector(".task-title");
+        const taskTitle = titleSpan ? titleSpan.textContent.trim() : "";
+        if (taskTitle) {
+            generateRoadmap(taskTitle, li, target);
+        }
+        return;
+    }
+
+    // Toggle Task Completed (Check/Uncheck)
+    const li = target.closest("li");
+    if (li && (target.classList.contains("task-title") || target.tagName === "LI")) {
+        li.classList.toggle("checked");
+        saveData();
+    }
+});
+
+// -------------------------------------------------------------
+// 2. AI Subtask Breakdown Generator
+// -------------------------------------------------------------
+
+async function generateRoadmap(taskTitle, liElement, buttonElement) {
+    const originalText = buttonElement.textContent;
+    buttonElement.textContent = "Generating...";
+    buttonElement.disabled = true;
+
     try {
-
-        const response = await fetch(`${API_BASE_URL}/ask-ai`, {
-
+        const res = await fetch(getApiUrl("/ask-ai"), {
             method: "POST",
-
-            headers: {
-
-                "Content-Type": "application/json"
-
-            },
-
-            body: JSON.stringify({
-
-                task: taskQuery
-
-            })
-
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ task: taskTitle })
         });
 
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            const msg = errData.answer || errData.error || `Server Error (${response.status})`;
-            alert(`AI Error: ${msg}`);
-            return;
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || errData.answer || `Server error ${res.status}`);
         }
 
-        const roadmap = await response.json();
+        const data = await res.json();
 
-        if (targetLi) {
-            // Remove existing subtask list under target task if any
-            const existingSub = targetLi.querySelector(".subtask-list");
-            if (existingSub) existingSub.remove();
+        // Remove old subtasks if re-generating
+        const oldSubList = liElement.querySelector(".subtask-list");
+        if (oldSubList) oldSubList.remove();
 
-            // Append new subtasks directly right below the target task item
-            if (roadmap && roadmap.subtasks && Array.isArray(roadmap.subtasks) && roadmap.subtasks.length > 0) {
-                const ul = document.createElement("ul");
-                ul.classList.add("subtask-list");
-                targetLi.appendChild(ul);
+        if (data.subtasks && Array.isArray(data.subtasks) && data.subtasks.length > 0) {
+            const ul = document.createElement("ul");
+            ul.className = "subtask-list";
+            liElement.appendChild(ul);
 
-                const currentLevelMatch = targetLi.className.match(/level-(\d+)/);
-                const currentLevel = currentLevelMatch ? parseInt(currentLevelMatch[1], 10) : 0;
+            const levelMatch = liElement.className.match(/level-(\d+)/);
+            const parentLevel = levelMatch ? parseInt(levelMatch[1], 10) : 0;
 
-                roadmap.subtasks.forEach(sub => {
-                    createTaskTree(sub, ul, currentLevel + 1);
-                });
-            }
-        } else {
-            createTaskTree(roadmap, listContainer);
+            data.subtasks.forEach(sub => {
+                createTaskElement(sub, ul, parentLevel + 1);
+            });
         }
 
         saveData();
-
+    } catch (error) {
+        console.error("AI Generation Error:", error);
+        alert(`AI Generation Error:\n${error.message}\n\n💡 Tip: Make sure backend server is running in terminal:\nnode server.js`);
+    } finally {
+        buttonElement.textContent = originalText;
+        buttonElement.disabled = false;
     }
-
-    catch (error) {
-
-        console.log(error);
-        alert("Cannot connect to server at http://localhost:3000.\n\nPlease start your backend server by running:\nnode server.js\nin your terminal!");
-
-    }
-
 }
 
-// =======================
-// AI Assistant
-// =======================
+// -------------------------------------------------------------
+// 3. AI Chat Assistant
+// -------------------------------------------------------------
 
-const aiInput = document.getElementById("ai-input");
-
-const aiBtn = document.getElementById("ai-btn");
-
-const aiResponse = document.getElementById("ai-response");
-
-aiBtn.addEventListener("click", askQuestion);
-
-// CHANGED (Where: formatAIResponse helper): Formats markdown headers into HTML styled headings.
-// WHY: Fulfills 'add the heading coulur in the ai assistant also'. Displays main headings in Navy Blue (#002765) and subheadings in Deep Purple (#4e085f).
-function formatAIResponse(text) {
-    if (!text) return "";
-    let html = text
-        .replace(/^### (.*$)/gim, '<div class="ai-res-subheading">$1</div>')
-        .replace(/^## (.*$)/gim, '<div class="ai-res-heading">$1</div>')
-        .replace(/^# (.*$)/gim, '<div class="ai-res-heading">$1</div>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    return html;
+if (aiBtn) {
+    aiBtn.addEventListener("click", askAssistant);
 }
 
-async function askQuestion(){
+if (aiInput) {
+    aiInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") askAssistant();
+    });
+}
 
-    const question = aiInput.value;
-
-    if(question===""){
-
-        alert("Ask something!");
-
+async function askAssistant() {
+    const question = aiInput ? aiInput.value.trim() : "";
+    if (!question) {
+        alert("Please enter a question!");
         return;
-
     }
 
-    aiResponse.innerHTML="Thinking...";
+    aiResponse.innerHTML = "<em>🤖 AI is thinking...</em>";
 
-    try{
-
-        const response = await fetch(`${API_BASE_URL}/ask-chat`,{
-
-            method:"POST",
-
-            headers:{
-
-                "Content-Type":"application/json"
-
-            },
-
-            body:JSON.stringify({
-
-                question:question
-
-            })
-
+    try {
+        const res = await fetch(getApiUrl("/ask-chat"), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question })
         });
 
-        const data=await response.json();
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || errData.answer || `Server error ${res.status}`);
+        }
 
-        const answerText = data.answer || data.response || "No response received.";
-        aiResponse.innerHTML = formatAIResponse(answerText);
+        const data = await res.json();
+        const formatted = (data.answer || "No response received.")
+            .replace(/^### (.*$)/gim, '<div class="ai-res-subheading">$1</div>')
+            .replace(/^## (.*$)/gim, '<div class="ai-res-heading">$1</div>')
+            .replace(/^# (.*$)/gim, '<div class="ai-res-heading">$1</div>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
+        aiResponse.innerHTML = formatted;
+    } catch (error) {
+        console.error("Chat Error:", error);
+        aiResponse.innerHTML = `
+            <div style="color: #d9534f; font-weight: 600;">
+                ⚠️ Unable to connect to backend server.
+                <div style="font-size: 14px; font-weight: normal; margin-top: 6px; color: #555;">
+                    ${error.message}<br><br>
+                    💡 <strong>Tip:</strong> Start backend server by running: <code>node server.js</code>
+                </div>
+            </div>
+        `;
     }
-
-    catch(err){
-
-        aiResponse.innerHTML="Error";
-
-    }
-
 }
+
+// -------------------------------------------------------------
+// 4. LocalStorage Persistence
+// -------------------------------------------------------------
+
+function saveData() {
+    localStorage.setItem("todo_data", listContainer.innerHTML);
+}
+
+function loadData() {
+    const saved = localStorage.getItem("todo_data") || localStorage.getItem("data");
+    if (saved) {
+        listContainer.innerHTML = saved;
+    }
+}
+
+loadData();

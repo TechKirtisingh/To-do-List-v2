@@ -1,35 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   font-family: "Poppins", sans-serif;
   box-sizing: border-box;
 }
+
 .container {
   width: 100%;
   min-height: 100vh;
   background: linear-gradient(135deg, #153677, #4e085f);
-  padding: 10px;
+  padding: 20px 10px;
 }
-/* CHANGED (Where: .todo-app max-width): Increased max-width from 540px to 750px. */
-/* WHY: Provides wider box space so task text, Ask AI buttons, and delete buttons fit comfortably on one single line without wrapping. */
+
 .todo-app {
   width: 100%;
-  max-width: 750px;
-  background: #fff;
-  margin: 60px auto 25px;
-  padding: 40px 30px 70px;
-  border-radius: 10px;
+  max-width: 680px;
+  background: #ffffff;
+  margin: 40px auto 25px;
+  padding: 35px 30px 50px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
+
 .todo-app h2 {
   color: #002765;
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  font-size: 24px;
 }
+
 .todo-app h2 img {
   width: 30px;
   margin-left: 10px;
 }
+
+/* Add Task Input Row */
 .row {
   display: flex;
   align-items: center;
@@ -39,30 +47,41 @@
   padding-left: 20px;
   margin-bottom: 25px;
 }
+
 input {
   flex: 1;
   border: none;
   outline: none;
   background: transparent;
-  padding: 10px;
+  padding: 12px 10px;
+  font-size: 15px;
 }
+
 button {
   border: none;
   outline: none;
-  padding: 16px 50px;
+  padding: 14px 40px;
   background: #08025c;
   color: white;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   border-radius: 30px;
+  transition: background 0.2s;
 }
-/* CHANGED (Where: ul li styling): Converted list items into flowchart node cards with padding and background. */
-/* WHY: Gives tasks and subtasks a clean card appearance with space for checkboxes, text, Ask AI buttons, and delete buttons. */
-/* CHANGED (Where: ul li styling): Changed layout to flex row with flex-wrap. */
-/* WHY: Fixes task content displaying vertically. Aligns checkbox, task title, and Ask AI button horizontally on one line, with subtasks wrapping below. */
+
+button:hover {
+  background: #153677;
+}
+
+/* List Items & Task Cards */
+ul {
+  padding: 0;
+}
+
 ul li {
   list-style: none;
-  font-size: 17px;
+  font-size: 16px;
   padding: 10px 45px 10px 45px;
   user-select: none;
   cursor: pointer;
@@ -70,273 +89,213 @@ ul li {
   margin-bottom: 8px;
   border-radius: 8px;
   background: #f8f9fa;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  transition: all 0.2s ease;
 }
 
-/* CHANGED (Where: .task-title): Added flex-grow and min-width. */
-/* WHY: Ensures task title takes available horizontal space on the line without wrapping vertically under the button. */
 .task-title {
   flex: 1;
   min-width: 0;
   color: #222222;
-  font-weight: 500;
-  vertical-align: middle;
   word-break: break-word;
 }
 
-/* CHANGED (Where: ul li::before): Vertically centered checkbox icon on list items. */
-/* WHY: Keeps checkbox icon vertically aligned inside flowchart node cards. */
+/* Checkbox Icon */
 ul li::before {
   content: "";
   position: absolute;
-  display: block;
-  height: 24px;
-  width: 24px;
+  height: 22px;
+  width: 22px;
   border-radius: 50%;
   background-image: url(images/unchecked.png);
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   top: 50%;
   transform: translateY(-50%);
-  left: 10px;
+  left: 12px;
 }
-ul li.checked{
-    color: #777;
-    text-decoration: line-through;
-    opacity: 0.7;
+
+ul li.checked {
+  color: #888;
+  text-decoration: line-through;
+  opacity: 0.65;
 }
+
 ul li.checked::before {
   background-image: url(images/checked.png);
 }
 
-/* CHANGED (Where: ul li .delete-btn): Delete button styling. */
-/* WHY: Positions delete button on the far right side of flowchart nodes cleanly without overlapping text or buttons. */
+/* Delete Button */
 ul li .delete-btn {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    font-size: 20px;
-    color: #666;
-    line-height: 30px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #e9ecef;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-ul li .delete-btn:hover{
-    background: #ffcdd2;
-    color: #d32f2f;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  color: #666;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e9ecef;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
-/* CHANGED (Where: .subtask-list): Flowchart branch line connectors for subtasks. */
-/* WHY: Creates a visual flowchart layout with connecting dashed lines between parent and subtask nodes. Set width 100% so it wraps below horizontal title row. */
+ul li .delete-btn:hover {
+  background: #ffcdd2;
+  color: #d32f2f;
+}
+
+/* Subtask Flowchart Tree Connectors */
 .subtask-list {
-    width: 100%;
-    margin-left: 15px;
-    padding-left: 15px;
-    border-left: 2px dashed #3f51b5; /* Vertical flowchart connector line */
-    margin-top: 8px;
-    margin-bottom: 5px;
+  width: 100%;
+  margin-left: 15px;
+  padding-left: 15px;
+  border-left: 2px dashed #3f51b5;
+  margin-top: 8px;
+  margin-bottom: 5px;
 }
 
 .subtask-list > li::after {
-    content: "";
-    position: absolute;
-    left: -15px;
-    top: 50%;
-    width: 12px;
-    height: 2px;
-    background-color: #3f51b5; /* Horizontal flowchart branch line */
+  content: "";
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  width: 12px;
+  height: 2px;
+  background-color: #3f51b5;
 }
 
-/* CHANGED (Where: .task-ai-btn): Styling for 'Ask AI' button on individual tasks. */
-/* WHY: Displays a neat 'Ask AI' pill button horizontally next to task text when tasks are added to the list. */
+/* Task 'Ask AI' Pill Button */
 .task-ai-btn {
-    flex-shrink: 0;
-    display: inline-block;
-    padding: 4px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #ffffff;
-    background: linear-gradient(135deg, #3f51b5, #4e085f);
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-left: 8px;
-    margin-right: 8px;
-    vertical-align: middle;
-    transition: transform 0.2s, background 0.2s;
-}
-.task-ai-btn:hover {
-    transform: scale(1.05);
-    background: linear-gradient(135deg, #283593, #38004d);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3f51b5, #4e085f);
+  border-radius: 12px;
+  margin: 0 8px;
+  transition: transform 0.2s, opacity 0.2s;
 }
 
-/* ===========================
-   AI Assistant
-=========================== */
-
-/* CHANGED (Where: .ai-box h3 and #ai-response heading styles): Added heading color hierarchy for AI Assistant. */
-/* WHY: Fulfills 'add the heading coulur in the ai assistant also'. Main headings in AI Assistant use Navy Blue (#002765) and subheadings use Deep Purple (#4e085f). */
-.ai-box{
-    margin-top:30px;
+.task-ai-btn:hover:not(:disabled) {
+  transform: scale(1.05);
 }
 
-.ai-box h3{
-    color:#002765;
-    margin-bottom:15px;
-    font-weight: 700;
-    font-size: 20px;
+.task-ai-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.ai-box input{
-
-    width:100%;
-    padding:12px;
-
-    border-radius:8px;
-
-    border:1px solid #ccc;
-
-    margin-bottom:15px;
-
-    font-size:16px;
-}
-
-.ai-box button{
-
-    width:100%;
-
-    padding:12px;
-
-    background:#3f51b5;
-
-    color:white;
-
-    border:none;
-
-    border-radius:8px;
-
-    cursor:pointer;
-
-    font-size:16px;
-}
-
-.ai-box button:hover{
-
-    background:#283593;
-
-}
-
-#ai-response{
-
-    margin-top:20px;
-
-    padding:15px;
-
-    background:#f8f9fa;
-
-    border:1px solid #e2e8f0;
-
-    border-left: 4px solid #002765;
-
-    border-radius:10px;
-
-    white-space:pre-wrap;
-
-    min-height:60px;
-
-    color: #333333;
-
-    line-height: 1.6;
-
-}
-
-#ai-response h1,
-#ai-response h2,
-#ai-response h3,
-#ai-response .ai-res-heading {
-    color: #002765; /* Main Heading Color: Navy Blue */
-    font-weight: 700;
-    margin-top: 10px;
-    margin-bottom: 6px;
-    font-size: 18px;
-}
-
-#ai-response h4,
-#ai-response .ai-res-subheading {
-    color: #4e085f; /* Subheading Color: Deep Purple */
-    font-weight: 600;
-    margin-top: 8px;
-    margin-bottom: 4px;
-    font-size: 16px;
-}
-
-#ai-response strong,
-#ai-response b {
-    color: #002765; /* Bold text heading color */
-    font-weight: 700;
-}
-
-/* CHANGED (Where: .level-0 to .level-3 task-title styles): Heading, Subheading & Normal Font Weight & Color Hierarchy. */
-/* WHY: Main heading is bold with distinct navy color, subheading is less bold with distinct deep purple color, normal heading/task is normal way (font-weight: 400). Structured as flowchart cards. */
-
-/* Level 0: Main Heading (Bold, Navy color #002765, prominent flowchart node box) */
+/* Flowchart Heading Levels & Color Hierarchy */
 .level-0 {
-    background: #eef4ff;
-    border: 1px solid #b3d1ff;
-    border-left: 5px solid #002765;
+  background: #eef4ff;
+  border: 1px solid #b3d1ff;
+  border-left: 4px solid #002765;
 }
 .level-0 > .task-title {
-    font-size: 20px;
-    font-weight: 700; /* HEADING: BOLD */
-    color: #002765; /* HEADING COLOR: Navy Blue */
+  font-size: 18px;
+  font-weight: 700;
+  color: #002765;
 }
 
-/* Level 1: Subheading (Less bold than heading, Deep Purple color #4e085f) */
 .level-1 {
-    background: #fbf0ff;
-    border: 1px solid #e1bee7;
-    border-left: 4px solid #4e085f;
+  background: #fbf0ff;
+  border: 1px solid #e1bee7;
+  border-left: 4px solid #4e085f;
 }
 .level-1 > .task-title {
-    font-size: 17px;
-    font-weight: 600; /* SUBHEADING: LESS BOLD THAN HEADING */
-    color: #4e085f; /* SUBHEADING COLOR: Deep Purple */
+  font-size: 16px;
+  font-weight: 600;
+  color: #4e085f;
 }
 
-/* Level 2: Sub-subheading (Slightly less bold, Indigo color #08025c) */
 .level-2 {
-    background: #f0f3ff;
-    border: 1px solid #c7d2fe;
-    border-left: 3px solid #08025c;
+  background: #f0f3ff;
+  border: 1px solid #c7d2fe;
+  border-left: 3px solid #08025c;
 }
 .level-2 > .task-title {
-    font-size: 15px;
-    font-weight: 500; /* LESS BOLD */
-    color: #08025c; /* COLOR: Indigo */
+  font-size: 15px;
+  font-weight: 500;
+  color: #08025c;
 }
 
-/* Level 3 & Normal Tasks: Normal Heading / Task (Normal way: font weight 400) */
 .level-3 {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-left: 3px solid #6c757d;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: 3px solid #6c757d;
 }
 .level-3 > .task-title {
-    font-size: 15px;
-    font-weight: 400; /* NORMAL HEADING / TASK: NORMAL WAY (WEIGHT 400) */
-    color: #333333; /* NORMAL COLOR: Dark Slate */
+  font-size: 15px;
+  font-weight: 400;
+  color: #333333;
+}
+
+/* AI Assistant Box */
+hr {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 25px 0;
+}
+
+.ai-box h3 {
+  color: #002765;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 19px;
+}
+
+.ai-box input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 12px;
+  background: #fdfdfd;
+}
+
+.ai-box button {
+  width: 100%;
+  padding: 12px;
+  background: #3f51b5;
+  border-radius: 8px;
+}
+
+.ai-box button:hover {
+  background: #283593;
+}
+
+#ai-response {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #002765;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  min-height: 50px;
+  color: #333333;
+  line-height: 1.6;
+}
+
+#ai-response .ai-res-heading {
+  color: #002765;
+  font-weight: 700;
+  margin-top: 8px;
+  font-size: 17px;
+}
+
+#ai-response .ai-res-subheading {
+  color: #4e085f;
+  font-weight: 600;
+  margin-top: 6px;
+  font-size: 15px;
 }
