@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Start Server (F5)",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/server.js"
+      "program": "${workspaceFolder}/dev-server.js"
     }
   ]
 }
